@@ -1,0 +1,315 @@
+Tabelas relevantes no PG:
+log_preco_produtos
+no_fornecedor
+palm_clientes
+palm_clientes_ref_comercial
+pontos_clientes_bloqueados_standalone
+pontos_cliente_desconto
+pontos_clientes_disponiveis_standalone
+produtos_aliquotas
+produtos_cadastro_importacao_xml
+produtos_combustivel_origem_importado
+produtos_combustivel_origem_nacional
+produtos_adicionais
+produtos_alteracoes_sped
+produtos_excluidos
+produtos_ncm_ibpt
+produtos_pendentes_transmitir
+produtos_validade
+produtos_ipi
+produtos_relacao_yandeh
+produtos_iss
+produtos_negativados
+produtos_nutricionais
+produtos_pontos_log
+reserva_cliente
+smart_cliente_contato
+produtos_temp
+palm_clientes_contato
+log_imagem_produto
+palm_clientes_inf_bancarias
+grupo_produtos_marcados
+smart_cliente
+log_produtos_ativacao_desativacao
+clientes_associados_bem_imovel
+classe_produtos
+cnae_produtos
+grupo_produtos
+parcelas_clientes
+produtos_imagens
+produtos_pontos
+produtos_receitas
+produtos_altera_quantidade
+produtos_codbarra
+produtos_similares
+produtos_composicao
+produtos_subst_tabelas
+subgrupo_produtos
+reforma_tributaria_regra_tributaria_produto
+alterados_clientes
+alterados_fornecedores
+autorizados_xml_cliente
+grupo_clientes
+clientes_alteracoes_sped
+clientes_anexos
+clientes_autorizados
+clientes_contato
+clientes_dados_alvara
+clientes_dependentes
+clientes_fornecedores_relacao_yandeh
+clientes_mensagem_nf
+clientes_referencias
+clientes_rg
+clientes_saldo_devedor
+clientes_transportadoras
+cliente_log_alteracoes
+credito_clientes
+credito_clientes_pix
+credito_fornecedores
+dados_financeiros_cliente
+dados_trabalho_cliente
+clientes
+fornecedores
+fornecedores_alteracoes_sped
+fornecedores_alvara
+grade_produtos_avulsa
+produtos_emprestados_devolvidos
+grade_produtos_conferencia_estoque
+grade_produtos_custos_venda
+grade_produtos_dados
+grade_produtos_devolucao
+grade_produtos_devolvi_emprestado
+grade_produtos_devolvi_emprestei
+produtos_emprestados
+grade_produtos_emprestado
+grade_produtos_emprestei
+produtos_emprestei
+grade_produtos_entrada_saida_manual
+produtos_emprestei_devolvi
+grade_produtos_inicio
+grade_produtos_itens_entrega
+grade_produtos_log
+grade_produtos_ordem_servico
+grade_produtos_producao
+grade_produtos_producao_formula
+grade_produtos_producao_perda
+grade_produtos_remessa_conserto_entrada
+grade_produtos_remessa_devolucao_fornecedor
+grade_produtos_reserva
+grade_produtos_saldo
+produtos
+grade_produtos_transferencia
+grade_produtos_transferencia_entrada
+grade_produtos_venda
+grade_produtos
+grade_produtos_zerar_estoque
+produto_nfce_fatura
+smart_cliente_informacao_bancaria
+smart_cliente_referencia
+produtos_ultima_compra
+grade_produtos_compra
+
+
+Estrutura de "no_fornecedor":
+  - codigo (integer)
+  - cd_fornecedor (integer)
+  - cd_produto (integer)
+  - no_fornecedor (character varying)
+  - fracao (numeric)
+
+Estrutura de "alterados_fornecedores":
+  - fornecedor (integer)
+  - usuario (integer)
+  - data (timestamp without time zone)
+
+Estrutura de "clientes_fornecedores_relacao_yandeh":
+  - codigo (integer)
+  - cliente (integer)
+  - fornecedor (integer)
+  - id_yandeh (character varying)
+  - operador (integer)
+  - data (timestamp without time zone)
+
+Estrutura de "credito_fornecedores":
+  - codigo (integer)
+  - fornecedor (integer)
+  - data (date)
+  - historico (character varying)
+  - entrada (numeric)
+  - saida (numeric)
+  - origem (character varying)
+  - operador (integer)
+  - devolucao_fornecedor (integer)
+
+Estrutura de "fornecedores":
+  - codigo (integer)
+  - cnpj (character varying)
+  - inscricaoest (character varying)
+  - datacad (date)
+  - nome (character varying)
+  - fantasia (character varying)
+  - endereco (character varying)
+  - bairro (character varying)
+  - cep (character varying)
+  - referencia (character varying)
+  - fone (character varying)
+  - ramal (character varying)
+  - fax (character varying)
+  - contato (character varying)
+  - email (character varying)
+  - url (character varying)
+  - representante (character varying)
+  - fonerepresentante (character varying)
+  - celularrepresentante (character varying)
+  - atividade (integer)
+  - observacoes (character varying)
+  - cxpostal (character varying)
+  - codobservacao (integer)
+  - fone2 (character varying)
+  - produtorrural (boolean)
+  - codigo_pais (integer)
+  - dias_atualizar (integer)
+  - industria (boolean)
+  - numero (character varying)
+  - complemento (character varying)
+  - regime_especial (boolean)
+  - permite_duplicar_cpf_cnpj (boolean)
+  - tipo_pessoa (integer)
+  - email_xml (character varying)
+  - id_estrangeiro (character varying)
+  - chave_requisicao_mfe (character varying)
+  - desonerado (integer)
+  - ativo (boolean)
+  - caepf (character varying)
+  - inscricao_suframa (character varying)
+  - codigo_credenciadora_sat_mfe (integer)
+  - nif_informado (integer)
+  - nif_motivo (integer)
+  - regime_tributario (integer)
+
+Estrutura de "fornecedores_alteracoes_sped":
+  - codigo (integer)
+  - fornecedor (integer)
+  - data (date)
+  - campo (integer)
+  - antigo (character varying)
+
+Estrutura de "fornecedores_alvara":
+  - fornecedor (integer)
+  - numero_alvara (character varying)
+  - certidao (character varying)
+  - data_ven_alvara (date)
+  - responsavel (character varying)
+  - registro_responsavel (character varying)
+
+Estrutura de "grade_produtos_remessa_devolucao_fornecedor":
+  - codigo (integer)
+  - grade (integer)
+  - linha (integer)
+  - coluna (integer)
+  - cd_item (integer)
+  - quantidade (numeric)
+
+Estrutura de "produtos":
+  - codigo (integer)
+  - codigodefabrica (character varying)
+  - descricao (character varying)
+  - unidade (character varying)
+  - ativo (numeric)
+  - grupo (integer)
+  - subgrupo (integer)
+  - departamento (integer)
+  - estoqueminimo (numeric)
+  - estoquemaximo (numeric)
+  - quantidade (numeric)
+  - embalagem (numeric)
+  - precovenda (numeric)
+  - precocusto (numeric)
+  - precocontabil (numeric)
+  - icms (numeric)
+  - percdesconto (numeric)
+  - vendersemestoque (numeric)
+  - iss (numeric)
+  - codbarra (character varying)
+  - garantia (character varying)
+  - baixa (character varying)
+  - classifica (integer)
+  - tabela_preco (integer)
+  - marca (character varying)
+  - estoq_inicial (numeric)
+  - class_fiscal (integer)
+  - aplicacao (text)
+  - cod_ncm (character varying)
+  - localizacao (character varying)
+  - situacaotributaria (character varying)
+  - comissao (numeric)
+  - observacoes (text)
+  - preco_minimo (numeric)
+  - carcaca (boolean)
+  - pesado (boolean)
+  - dimensao (character varying)
+  - medidas (character varying)
+  - pi (character varying)
+  - classe (character varying)
+  - peso_bruto (numeric)
+  - peso_liquido (numeric)
+  - montado (boolean)
+  - ipi (numeric)
+  - dias_contato (integer)
+  - funrural (numeric)
+  - cfop_venda (integer)
+  - cfop_compra (integer)
+  - st_fora (character varying)
+  - importado (boolean)
+  - tipo_etiqueta (integer)
+  - dias_preco (integer)
+  - desc_catalogo (character varying)
+  - tipo_mercadoria (character varying)
+  - genero_item (integer)
+  - conta_analitica (character varying)
+  - envia_palm (boolean)
+  - grade (integer)
+  - md5 (character varying)
+  - ipi_entrada (numeric)
+  - codigo_cnae (integer)
+  - credita_icmsst (boolean)
+  - codigo_anp (character varying)
+  - recarga_celular (boolean)
+  - paranoprecopdv (boolean)
+  - cest (character varying)
+  - unidade_tributavel (character varying)
+  - pgnn (numeric)
+  - pgni (numeric)
+  - pglp (numeric)
+  - ind_escala_relevante (integer)
+  - beneficio (integer)
+  - utiliza_lote (boolean)
+  - codigo_anvisa (character varying)
+  - embalagem_venda (numeric)
+  - iss_tributacao (integer)
+  - desonerado (integer)
+  - usocte (boolean)
+  - calcula_antecipacao_icms (boolean)
+  - comprimento (numeric)
+  - largura (numeric)
+  - altura (numeric)
+  - reducao_iss (integer)
+  - produto_principal (boolean)
+  - lote_distribuicao_automatica (boolean)
+  - ficha_vale_pdv (boolean)
+  - anp_aliquota_ad_rem (numeric)
+  - anp_descricao (character varying)
+  - anp_percentual_diferimento (numeric)
+  - origem_combustivel (integer)
+  - credita_icms_x10 (boolean)
+  - ex_tipi (character varying)
+  - observacoes_nfe (integer)
+  - usa_serial_compra (boolean)
+  - posse_mercadoria_sintegra (integer)
+  - beneficio_credito_presumido (integer)
+  - item_com_beneficio (boolean)
+  - tipo_item (integer)
+  - nbs (integer)
+  - nbs_sugerido (boolean)
+  - percent_simples_nacional_serv (numeric)
+  - codigo_balanca (integer)

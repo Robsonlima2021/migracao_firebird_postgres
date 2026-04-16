@@ -1,0 +1,14 @@
+{
+  "name": "migracao-de-dados",
+  "version": "1.0.0",
+  "description": "Migration from Firebird to PostgreSQL",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "dotenv": "^16.6.1",
+    "node-firebird": "^1.1.10",
+    "pg": "^8.20.0"
+  }
+}
