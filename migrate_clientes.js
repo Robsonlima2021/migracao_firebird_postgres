@@ -21,6 +21,17 @@ const pgClient = new Client({
     port: parseInt(process.env.PG_PORT || '5432'),
 });
 
+function formatCpfCnpj(value) {
+    if (!value) return '';
+    const digits = value.replace(/\D/g, '');
+    if (digits.length === 11) {
+        return digits.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+    } else if (digits.length === 14) {
+        return digits.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, "$1.$2.$3/$4-$5");
+    }
+    return value; // Return unformatted if length is weird
+}
+
 async function run() {
     console.log("Iniciando migração de Clientes...");
     await pgClient.connect();
@@ -49,21 +60,26 @@ async function run() {
                     const codigo = c.CLI_CODIGO;
                     const nome = c.CLI_NOME ? c.CLI_NOME.toString().trim() : '';
                     const fantasia = c.CLI_FANTASIA ? c.CLI_FANTASIA.toString().trim() : '';
-                    const cpf_cnpj = c.CLI_CPF_CNPJ ? c.CLI_CPF_CNPJ.toString().trim() : '';
+                    let cpf_cnpj = c.CLI_CPF_CNPJ ? c.CLI_CPF_CNPJ.toString().trim() : '';
+                    cpf_cnpj = formatCpfCnpj(cpf_cnpj);
                     const endereco = c.CLI_ENDERECO ? c.CLI_ENDERECO.toString().trim() : '';
                     const bairro = c.CLI_BAIRRO ? c.CLI_BAIRRO.toString().trim() : '';
                     const cep = c.CLI_CEP ? c.CLI_CEP.toString().trim() : '';
                     const fone = c.CLI_FONE ? c.CLI_FONE.toString().trim() : '';
                     const email = c.CLI_EMAIL ? c.CLI_EMAIL.toString().trim() : null;
                     const datacad = c.CLI_DATACADASTRO || null;
+                    const inscricaoest = c.CLI_IDENTIDADE ? c.CLI_IDENTIDADE.toString().trim() : '';
+                    const inscricaomunicipal = c.CLI_IM ? c.CLI_IM.toString().trim() : '';
 
                     const query = `
-                        INSERT INTO clientes (codigo, nome, fantasia, cpf_cnpj, endereco, bairro, cep, fone, email, datacad)
-                        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+                        INSERT INTO clientes (codigo, nome, fantasia, cpf_cnpj, inscricaoest, inscricaomunicipal, endereco, bairro, cep, fone, email, datacad)
+                        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
                         ON CONFLICT (codigo) DO UPDATE SET 
                             nome = EXCLUDED.nome,
                             fantasia = EXCLUDED.fantasia,
                             cpf_cnpj = EXCLUDED.cpf_cnpj,
+                            inscricaoest = EXCLUDED.inscricaoest,
+                            inscricaomunicipal = EXCLUDED.inscricaomunicipal,
                             endereco = EXCLUDED.endereco,
                             bairro = EXCLUDED.bairro,
                             cep = EXCLUDED.cep,
@@ -71,7 +87,7 @@ async function run() {
                             email = EXCLUDED.email,
                             datacad = EXCLUDED.datacad
                     `;
-                    await pgClient.query(query, [codigo, nome, fantasia, cpf_cnpj, endereco, bairro, cep, fone, email, datacad]);
+                    await pgClient.query(query, [codigo, nome, fantasia, cpf_cnpj, inscricaoest, inscricaomunicipal, endereco, bairro, cep, fone, email, datacad]);
                     inseridos++;
                     if (inseridos % 500 === 0) process.stdout.write('.');
                 } catch (err) {

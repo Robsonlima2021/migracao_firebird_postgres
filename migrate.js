@@ -40,6 +40,9 @@ async function run() {
             await pgClient.query("SET session_replication_role = replica;");
             
             const produtoIdMap = {}; // Guarda de -> para dos códigos
+            
+            await migrateGrupos(fbDb, pgClient);
+            await migrateSubgrupos(fbDb, pgClient);
             await migrateFornecedores(fbDb, pgClient);
             await migrateProdutos(fbDb, pgClient, produtoIdMap);
             await migrateVinculos(fbDb, pgClient, produtoIdMap);
@@ -63,6 +66,50 @@ function getFbData(fbDb, query) {
             resolve(result);
         });
     });
+}
+
+async function migrateGrupos(fbDb, pgClient) {
+    console.log("\n> Extraindo Seções (SECCAO) como Grupos...");
+    const seccoes = await getFbData(fbDb, `SELECT SEC_CODIGO, SEC_DESCRICAO FROM SECCAO`);
+    console.log(`Encontradas ${seccoes.length} seções no Firebird.`);
+
+    let inseridos = 0;
+    for (const s of seccoes) {
+        try {
+            const query = `
+                INSERT INTO grupo_produtos (codigo, nome)
+                VALUES ($1, $2)
+                ON CONFLICT (codigo) DO UPDATE SET nome = EXCLUDED.nome
+            `;
+            await pgClient.query(query, [s.SEC_CODIGO, s.SEC_DESCRICAO?.toString().trim()]);
+            inseridos++;
+        } catch (err) {
+            console.error(`\nErro Seção cod ${s.SEC_CODIGO}:`, err.message);
+        }
+    }
+    console.log(`> ${inseridos} Grupos migrados/atualizados!`);
+}
+
+async function migrateSubgrupos(fbDb, pgClient) {
+    console.log("\n> Extraindo Grupos (GRUPOSPRO) como Subgrupos...");
+    const grupos = await getFbData(fbDb, `SELECT GRU_CODIGO, GRU_DESCRICAO FROM GRUPOSPRO`);
+    console.log(`Encontrados ${grupos.length} grupos no Firebird.`);
+
+    let inseridos = 0;
+    for (const g of grupos) {
+        try {
+            const query = `
+                INSERT INTO subgrupo_produtos (codigo, nome)
+                VALUES ($1, $2)
+                ON CONFLICT (codigo) DO UPDATE SET nome = EXCLUDED.nome
+            `;
+            await pgClient.query(query, [g.GRU_CODIGO, g.GRU_DESCRICAO?.toString().trim()]);
+            inseridos++;
+        } catch (err) {
+            console.error(`\nErro Grupo cod ${g.GRU_CODIGO}:`, err.message);
+        }
+    }
+    console.log(`> ${inseridos} Subgrupos migrados/atualizados!`);
 }
 
 async function migrateFornecedores(fbDb, pgClient) {
@@ -106,6 +153,13 @@ async function migrateFornecedores(fbDb, pgClient) {
 
 async function migrateProdutos(fbDb, pgClient, idMap) {
     console.log("\n> Extraindo Produtos...");
+    
+    // Cache de mapeamento Grupo -> Seção do Firebird
+    console.log("Mapeando hierarquia Grupo -> Seção...");
+    const hierarchy = await getFbData(fbDb, `SELECT GRU_CODIGO, SEC_CODIGO FROM GRUPOSPRO`);
+    const groupToSection = {};
+    hierarchy.forEach(h => { groupToSection[h.GRU_CODIGO] = h.SEC_CODIGO; });
+
     const produtos = await getFbData(fbDb, `SELECT * FROM PRODUTOS`);
     console.log(`Encontrados ${produtos.length} produtos no Firebird. (Iniciando upsert)`);
 
@@ -131,9 +185,13 @@ async function migrateProdutos(fbDb, pgClient, idMap) {
             const descricao = p.PRO_DESCRICAO ? p.PRO_DESCRICAO.toString().trim().substring(0, 100) : null;
             const unidade = p.PRO_UNIDADE ? p.PRO_UNIDADE.toString().trim().substring(0, 5) : null;
             const precocusto = p.PRO_PRCCUSTO || 0.0;
-            const precovenda = p.PRO_MPRECO3 || p.PRO_PRECOST || p.PRO_PRCVENDALUCROZERO || 0.0; 
+            const preco_venda = p.PRO_MPRECO3 || p.PRO_PRECOST || p.PRO_PRCVENDALUCROZERO || 0.0; 
             const cod_ncm = p.PRO_NCM ? p.PRO_NCM.toString().trim().substring(0, 8) : null;
             
+            // Classificação
+            const subgrupoId = p.GRU_CODIGO || null;
+            const grupoId = subgrupoId ? groupToSection[subgrupoId] : null;
+
             // Se o PRO_CODIGO era barcode, salva no codbarra também!
             let codbarra = p.PRO_CODIGOBAR ? p.PRO_CODIGOBAR.toString().trim() : null;
             if (codigoNum !== parseInt(oldCodigo, 10)) {
@@ -141,17 +199,19 @@ async function migrateProdutos(fbDb, pgClient, idMap) {
             }
 
             const query = `
-                INSERT INTO produtos (codigo, descricao, unidade, precocusto, precovenda, cod_ncm, codbarra)
-                VALUES ($1, $2, $3, $4, $5, $6, $7)
+                INSERT INTO produtos (codigo, descricao, unidade, precocusto, precovenda, cod_ncm, codbarra, grupo, subgrupo)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
                 ON CONFLICT (codigo) DO UPDATE SET 
                     descricao = EXCLUDED.descricao,
                     unidade = EXCLUDED.unidade,
                     precocusto = EXCLUDED.precocusto,
                     precovenda = EXCLUDED.precovenda,
                     cod_ncm = EXCLUDED.cod_ncm,
-                    codbarra = EXCLUDED.codbarra
+                    codbarra = EXCLUDED.codbarra,
+                    grupo = EXCLUDED.grupo,
+                    subgrupo = EXCLUDED.subgrupo
             `;
-            await pgClient.query(query, [codigoNum, descricao, unidade, precocusto, precovenda, cod_ncm, codbarra]);
+            await pgClient.query(query, [codigoNum, descricao, unidade, precocusto, preco_venda, cod_ncm, codbarra, grupoId, subgrupoId]);
             inseridos++;
             if (inseridos % 500 === 0) process.stdout.write('.');
         } catch (err) {
